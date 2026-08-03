@@ -3,104 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spy Movie Stream</title>
+    <title>PMWBD Style Stream</title>
     <style>
-        body {
-            background-color: #0f1014;
-            color: #ffffff;
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-        }
-        header {
-            background: #1a1c23;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #2f333d;
-        }
-        .logo {
-            font-size: 22px;
-            font-weight: bold;
-            color: #ff3366;
-        }
-        .container {
-            padding: 20px;
-        }
-        h2 {
-            font-size: 18px;
-            border-left: 4px solid #ff3366;
-            padding-left: 10px;
-            margin-bottom: 15px;
-        }
-        .movie-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-        }
-        .movie-card {
-            background: #1a1c23;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-        .movie-card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
-        }
-        .movie-info {
-            padding: 10px;
-        }
-        .movie-title {
-            font-size: 14px;
-            font-weight: bold;
-            margin-bottom: 5px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .btn {
-            display: block;
-            text-align: center;
-            background: #ff3366;
-            color: white;
-            text-decoration: none;
-            padding: 6px;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-top: 8px;
-        }
+        body { background-color: #0f1014; color: #fff; font-family: Arial, sans-serif; margin: 0; padding: 20px; }
+        h1 { color: #ff3366; text-align: center; }
+        .movie-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; margin-top: 20px; }
+        .movie-card { background: #1a1c23; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        .movie-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+        .btn { display: inline-block; background: #ff3366; color: white; text-decoration: none; padding: 8px 12px; border-radius: 4px; font-size: 14px; }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">SPY STREAM</div>
-    </header>
+    <h1>SPY STREAM MOVIES</h1>
+    <div id="movie-container" class="movie-grid">Loading movies...</div>
 
-    <div class="container">
-        <h2>Trending Movies</h2>
-        <div class="movie-grid">
-            <!-- Movie 1 -->
-            <div class="movie-card">
-                <img src="https://images.unsplash.com/photo-1536440136628-849c177e76a1?w=400" alt="Movie">
-                <div class="movie-info">
-                    <div class="movie-title">Action Thriller 2026</div>
-                    <a href="#" class="btn">Watch / Download</a>
-                </div>
-            </div>
-            <!-- Movie 2 -->
-            <div class="movie-card">
-                <img src="https://images.unsplash.com/photo-1485846234645-a62644f84728?w=400" alt="Movie">
-                <div class="movie-info">
-                    <div class="movie-title">Sci-Fi Universe</div>
-                    <a href="#" class="btn">Watch / Download</a>
-                </div>
-            </div>
-        </div>
-    </div>
+    <script>
+        // Yahan apne Koyeb backend ka link dalein (Jaise: https://your-koyeb-app.koyeb.app/api/movies)
+        fetch('https://YOUR_KOYEB_APP_URL.koyeb.app/api/movies')
+            .then(res => res.json())
+            .then(data => {
+                const container = document.getElementById('movie-container');
+                container.innerHTML = '';
+                if(data.length === 0) {
+                    container.innerHTML = '<p>No movies added yet. Send via Telegram Bot!</p>';
+                    return;
+                }
+                data.forEach(movie => {
+                    container.innerHTML += `
+                        <div class="movie-card">
+                            <div class="movie-title">${movie.title}</div>
+                            <a href="https://t.me/YOUR_BOT_USERNAME" class="btn" target="_blank">Watch / Download</a>
+                        </div>
+                    `;
+                });
+            })
+            .catch(err => {
+                document.getElementById('movie-container').innerHTML = '<p>Failed to load movies.</p>';
+            });
+    </script>
 
 </body>
 </html>
