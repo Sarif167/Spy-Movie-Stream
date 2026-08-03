@@ -1,55 +1,13 @@
 {
   "name": "telegram-movie-bot",
   "version": "1.0.0",
-  "lockfileVersion": 2,
-  "requires": true,
-  "packages": {
-    "": {
-      "name": "telegram-movie-bot",
-      "version": "1.0.0",
-      "dependencies": {
-        "express": "^4.18.2",
-        "mongoose": "^8.0.3",
-        "node-telegram-bot-api": "^0.65.0"
-      }
-    },
-    "node_modules/express": {
-      "version": "4.18.2",
-      "resolved": "https://registry.npmjs.org/express/-/express-4.18.2.tgz",
-      "integrity": "sha512-5/QRl6RB3cnQOqJqSGG/duFxHKuJnhK4gAro8q9yR71qLh11O+DPAVqK+Pq06+L4d26iZqF+R4A==",
-      "dependencies": {
-        "accepts": "~1.3.8",
-        "array-flatten": "1.1.1",
-        "body-parser": "1.20.1",
-        "content-disposition": "0.5.4",
-        "content-type": "~1.0.4",
-        "cookie": "0.5.0",
-        "cookie-signature": "1.0.6",
-        "debug": "2.6.9",
-        "depd": "2.0.0",
-        "encodeurl": "~1.0.2",
-        "escape-html": "1.0.4",
-        "etag": "~1.8.1",
-        "finalhandler": "1.2.0",
-        "fresh": "0.5.2",
-        "http-errors": "2.0.0",
-        "merge-dir": "1.0.1",
-        "methods": "1.1.2",
-        "on-finished": "2.4.1",
-        "parse-id": "1.0.0",
-        "path-to-regexp": "0.1.7",
-        "proxy-addr": "2.0.7",
-        "qs": "6.11.0",
-        "range-parser": "1.2.1",
-        "safe-buffer": "5.2.1",
-        "send": "0.18.2",
-        "serve-static": "1.15.0",
-        "setprototypeof": "1.2.0",
-        "statuses": "2.0.1",
-        "type-is": "~1.6.18",
-        "utils-merge": "1.0.1",
-        "vary": "~1.1.2"
-      }
-    }
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "4.18.2",
+    "mongoose": "8.0.3",
+    "node-telegram-bot-api": "0.65.0"
   }
 }
