@@ -1,0 +1,13 @@
+{
+  "name": "telegram-movie-bot",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "mongoose": "^8.0.3",
+    "node-telegram-bot-api": "^0.65.0"
+  }
+}
