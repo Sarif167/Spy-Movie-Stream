@@ -20,8 +20,8 @@
     <div id="movie-container" class="movie-grid">Loading movies...</div>
 
     <script>
-        // Fetch movies from your Koyeb backend
-        fetch('https://yappy-berti-new11-38bf5e99.koyeb.app/movies')
+        // Fetch movies from your Koyeb backend API endpoint
+        fetch('https://yappy-berti-new11-38bf5e99.koyeb.app/api/movies')
             .then(res => res.json())
             .then(data => {
                 const container = document.getElementById('movie-container');
