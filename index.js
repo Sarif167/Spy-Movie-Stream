@@ -4,9 +4,9 @@ const mongoose = require('mongoose');
 const TelegramBot = require('node-telegram-bot-api');
 
 // --- CONFIGURATION ---
-// Apni MongoDB URI aur Telegram Bot Token yahan daalein (ya environment variables use karein)
 const MONGO_URI = process.env.MONGO_URI || 'YAHAN_APNI_MONGODB_URI_DAALEIN';
 const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || 'YAHAN_APNA_BOT_TOKEN_DAALEIN';
+const APP_URL = process.env.RENDER_EXTERNAL_URL || process.env.KOYEB_PUBLIC_URL || 'https://yappy-berti-new11-38bf5e99.koyeb.app';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -34,16 +34,25 @@ const movieSchema = new mongoose.Schema({
 
 const Movie = mongoose.model('Movie', movieSchema);
 
-// --- TELEGRAM BOT SETUP ---
-// polling: true rakha hai, ensure karein ki yeh bot kisi aur jagah run na ho raha ho
-const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
+// --- TELEGRAM BOT SETUP (WEBHOOK MODE) ---
+// Yahan polling: true ki jagah webhook use kiya hai taaki 409 conflict error kabhi na aaye
+const bot = new TelegramBot(TELEGRAM_BOT_TOKEN);
 
-// Bot se movie/file add karne ka logic (Aap apne hisab se command ya text handler customize kar sakte hain)
+// Set webhook to your Koyeb app URL
+const webhookPath = `/bot${TELEGRAM_BOT_TOKEN}`;
+bot.setWebHook(`${APP_URL}${webhookPath}`);
+
+// Express route to handle incoming Telegram updates
+app.post(webhookPath, (req, res) => {
+    bot.processUpdate(req.body);
+    res.sendStatus(200);
+});
+
+// Bot message handler
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
 
-    // Example format: Agar aap bot ko bhejein -> MovieName | FileUrl
     if (text && text.includes('|')) {
         const parts = text.split('|');
         const title = parts[0].trim();
@@ -60,13 +69,10 @@ bot.on('message', async (msg) => {
 });
 
 // --- API ROUTES FOR WEBSITE ---
-
-// Root route taaki direct link kholne par error na aaye
 app.get('/', (req, res) => {
     res.send('SPY STREAM Backend & Telegram Bot is running successfully!');
 });
 
-// Get all movies route for frontend (Vercel website)
 app.get('/movies', async (req, res) => {
     try {
         const movies = await Movie.find().sort({ createdAt: -1 });
