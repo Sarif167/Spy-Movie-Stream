@@ -43,15 +43,13 @@ bot.on('message', async (msg) => {
     let title = '';
     let file_url = '';
 
-    // Server ka base URL (Koyeb URL) automatic ya environment variable se
+    // Server ka base URL
     const hostUrl = process.env.RENDER_EXTERNAL_URL || process.env.KOYEB_PUBLIC_URL || `https://${process.env.KOYEB_SERVICE_NAME || 'yappy-berti-new11-38bf5e99'}.koyeb.app`;
 
     // Case 1: Video ya Document forward kiya gaya hai
     if (msg.video || msg.document) {
         const file = msg.video || msg.document;
         title = caption || file.file_name || 'Untitled Video';
-        
-        // Hamara khud ka stream proxy link banega jo kabhi expire nahi hoga
         file_url = `${hostUrl}/stream/${file.file_id}`;
     } 
     // Case 2: Text me bheja hai -> Name | Link
@@ -75,17 +73,15 @@ bot.on('message', async (msg) => {
     }
 });
 
-// --- STREAMING PROXY ROUTE (Bina expire hone wala video stream) ---
+// --- STREAMING PROXY ROUTE ---
 app.get('/stream/:fileId', async (req, res) => {
     try {
         const fileId = req.params.fileId;
         
-        // Telegram API se file ka path nikalna
         const fileResponse = await axios.get(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/getFile?file_id=${fileId}`);
         const filePath = fileResponse.data.result.file_path;
         const fileUrl = `https://api.telegram.org/file/bot${TELEGRAM_BOT_TOKEN}/${filePath}`;
 
-        // Video stream ko client/browser par redirect ya pipe karna
         const response = await axios({
             method: 'get',
             url: fileUrl,
