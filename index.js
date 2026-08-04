@@ -1,62 +1,82 @@
-const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
+const TelegramBot = require('node-telegram-bot-api');
 
-// Environment Variables se credentials lena
-const token = process.env.BOT_TOKEN;
-const mongoURI = process.env.MONGO_URI;
+// --- CONFIGURATION ---
+// Apni MongoDB URI aur Telegram Bot Token yahan daalein (ya environment variables use karein)
+const MONGO_URI = process.env.MONGO_URI || 'YAHAN_APNI_MONGODB_URI_DAALEIN';
+const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || 'YAHAN_APNA_BOT_TOKEN_DAALEIN';
 
-const bot = new TelegramBot(token, { polling: true });
 const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
 app.use(express.json());
 
-// MongoDB Connection
-mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log("MongoDB Connected"))
-    .catch(err => console.log(err));
-
-// Movie Schema Database ke liye
-const movieSchema = new mongoose.Schema({
-    title: String,
-    fileId: String,
-    fileType: String,
-    caption: String
+// --- DATABASE CONNECTION ---
+mongoose.connect(MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+}).then(() => {
+    console.log('MongoDB Connected');
+}).catch(err => {
+    console.error('MongoDB Connection Error:', err);
 });
+
+// --- MOVIE SCHEMA & MODEL ---
+const movieSchema = new mongoose.Schema({
+    title: { type: String, required: true },
+    file_url: { type: String, required: true },
+    createdAt: { type: Date, default: Date.now }
+});
+
 const Movie = mongoose.model('Movie', movieSchema);
 
-// Jab Telegram par koi video/document bhejein
+// --- TELEGRAM BOT SETUP ---
+// polling: true rakha hai, ensure karein ki yeh bot kisi aur jagah run na ho raha ho
+const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
+
+// Bot se movie/file add karne ka logic (Aap apne hisab se command ya text handler customize kar sakte hain)
 bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
-    const movieTitle = msg.text || msg.caption;
+    const text = msg.text;
 
-    if (msg.video || msg.document) {
-        const fileId = msg.video ? msg.video.file_id : msg.document.file_id;
-        const title = movieTitle || "Untitled Movie";
+    // Example format: Agar aap bot ko bhejein -> MovieName | FileUrl
+    if (text && text.includes('|')) {
+        const parts = text.split('|');
+        const title = parts[0].trim();
+        const file_url = parts[1].trim();
 
         try {
-            // Database me save karna
-            await Movie.create({ title, fileId, fileType: msg.video ? 'video' : 'document' });
-            bot.sendMessage(chatId, `✅ Movie Successfully Website par add ho gayi!\nTitle: ${title}`);
-        } catch (error) {
-            bot.sendMessage(chatId, `❌ Error: ${error.message}`);
+            const newMovie = new Movie({ title, file_url });
+            await newMovie.save();
+            bot.sendMessage(chatId, `Success! Movie added: ${title}`);
+        } catch (err) {
+            bot.sendMessage(chatId, `Error saving movie: ${err.message}`);
         }
-    } else {
-        bot.sendMessage(chatId, "Kripya koi Movie (Video ya File) bhejein sath me naam likh kar.");
     }
 });
 
-// Website ke liye API (Jahan se Vercel website movies fetch karegi)
-app.get('/api/movies', async (req, res) => {
+// --- API ROUTES FOR WEBSITE ---
+
+// Root route taaki direct link kholne par error na aaye
+app.get('/', (req, res) => {
+    res.send('SPY STREAM Backend & Telegram Bot is running successfully!');
+});
+
+// Get all movies route for frontend (Vercel website)
+app.get('/movies', async (req, res) => {
     try {
-        const movies = await Movie.find().sort({ _id: -1 });
+        const movies = await Movie.find().sort({ createdAt: -1 });
         res.json(movies);
     } catch (err) {
-        res.status(500).json({ error: "Server Error" });
+        res.status(500).json({ error: err.message });
     }
 });
 
-const PORT = process.env.PORT || 3000;
+// --- START SERVER ---
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
-
